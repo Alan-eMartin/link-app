@@ -1,15 +1,22 @@
-// schemas
-import { gql } from 'apollo-server-micro';
+import { makeSchema } from 'nexus';
+import { join } from 'path';
 
-export const typeDefs = gql`
-  type User {
-    id: ID
-    name: String
-    avatar_url: String
-  }
+import * as types from '../types';
 
-  type Query {
-    getUsers: [User]
-    getUser(name: String!): User!
-  }
-`;
+export const schema = makeSchema({
+  types,
+  outputs: {
+    typegen: join(
+      process.cwd(),
+      'node_modules',
+      '@types',
+      'nexus-typegen',
+      'index.d.ts'
+    ),
+    schema: join(process.cwd(), 'src/graphql/schemas', 'schema.graphql'),
+  },
+  contextType: {
+    export: 'Context',
+    module: join(process.cwd(), 'src/graphql', 'context.ts'),
+  },
+});

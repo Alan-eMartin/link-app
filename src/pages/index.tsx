@@ -63,7 +63,9 @@ const Home = ({ links, error }: HomeProps) => {
       <ul>
         {links.map((link: ILink) => (
           <li key={link.id}>
-            <a href={link.url}>{link.title}</a>
+            <h1 className='text-3xl font-bold underline'>
+              <a href={link.url}>{link.title}</a>
+            </h1>
           </li>
         ))}
       </ul>

@@ -1,12 +1,5 @@
-import type { NextPage } from 'next';
-import { gql, useQuery } from '@apollo/client';
-import {
-  Key,
-  ReactElement,
-  JSXElementConstructor,
-  ReactFragment,
-  ReactPortal,
-} from 'react';
+import apolloClient from '../lib/apollo';
+import { gql } from '@apollo/client';
 
 const AllLinksQuery = gql`
   query {
@@ -21,6 +14,30 @@ const AllLinksQuery = gql`
   }
 `;
 
+export async function getServerSideProps() {
+  const { data, error } = await apolloClient.query({ query: AllLinksQuery });
+
+  if (error) {
+    console.log('HELLO FROM SERVER SIDE PROPS');
+
+    console.error(error);
+
+    return {
+      props: {
+        links: [],
+        error: error.message,
+      },
+    };
+  }
+
+  return {
+    props: {
+      links: data.links,
+      error: null,
+    },
+  };
+}
+
 // Temp move to better dir
 interface ILink {
   id: string;
@@ -31,19 +48,20 @@ interface ILink {
   category: string;
 }
 
-const Home: NextPage = () => {
-  const { data, error, loading } = useQuery(AllLinksQuery);
-  console.log(error);
+type HomeProps = {
+  links: ILink[];
+  error: string | null;
+};
 
-  // Loading Data
-  if (loading) return <p>Loading...</p>;
-  // Error
-  if (error) return <p>Error: {error.message}</p>;
+const Home = ({ links, error }: HomeProps) => {
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
 
   return (
     <div>
       <ul>
-        {data.links.map((link: ILink) => (
+        {links.map((link: ILink) => (
           <li key={link.id}>
             <a href={link.url}>{link.title}</a>
           </li>
